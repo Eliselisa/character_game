@@ -7,13 +7,15 @@ public class PlayerController : MonoBehaviour
     [SerializeField] PlayerInput playerInput;
     [SerializeField] string actionMapName = "Player";
     [SerializeField] Transform playerTransform;
-    [SerializeField] float moveSpeed = 5f;
+    [SerializeField] float moveSpeed = 15f;
     [SerializeField] float lookSpeed = 30f;
     [SerializeField] Animator playerAnimator;
-    [SerializeField] float jumpForce = 5f;
+    [SerializeField] float jumpForce = 10f;
     [SerializeField] CapsuleCollider playerCollider;
     [SerializeField] PlayerDimensions standingDimensions;
     [SerializeField] PlayerDimensions crouchedDimensions;
+
+    private WeaponController weaponController;
 
     bool crouched;
 
@@ -40,12 +42,20 @@ public class PlayerController : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        weaponController = playerTransform.GetComponent<WeaponController>();
     }
 
-    private void Update()
+    private void OnDestroy()
     {
-        playerTransform.Rotate(lookDirection * lookSpeed * Time.deltaTime, Space.Self);
-        playerTransform.Translate(moveDirection * moveSpeed * Time.deltaTime, Space.Self);
+        // Unsubscribe from the action triggered event to avoid memory leaks
+        playerInput.onActionTriggered -= HandleActionTriggered;
+    }
+
+    private void FixedUpdate()
+    {
+        playerTransform.Rotate(lookDirection * lookSpeed * Time.fixedDeltaTime, Space.Self);
+        playerTransform.Translate(moveDirection * moveSpeed * Time.fixedDeltaTime, Space.Self);
 
         // Update animator parameters based on movement
         playerAnimator.SetFloat("Forward", moveDirection.z);
@@ -120,6 +130,20 @@ public class PlayerController : MonoBehaviour
                         ToggleCrouch();
                     }
 
+                    break;
+
+                case "NextWeapon":
+                    if (context.performed)
+                    {
+                        weaponController.NextWeapon();
+                    }
+                    break;
+
+                case "PreviousWeapon":
+                    if (context.performed)
+                    {
+                        weaponController.PreviousWeapon();
+                    }
                     break;
 
 
