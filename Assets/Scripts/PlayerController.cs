@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] PlayerInput playerInput;
     [SerializeField] string actionMapName = "Player";
+    [SerializeField] string uiMapName = "UI";
     [SerializeField] Transform playerTransform;
     [SerializeField] float moveSpeed = 15f;
     [SerializeField] float lookSpeed = 30f;
@@ -14,6 +15,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] CapsuleCollider playerCollider;
     [SerializeField] PlayerDimensions standingDimensions;
     [SerializeField] PlayerDimensions crouchedDimensions;
+    [SerializeField] WeaponSelectionUI weaponSelectionUI;
+    [SerializeField] Attacker attacker;
 
     private WeaponController weaponController;
 
@@ -39,11 +42,26 @@ public class PlayerController : MonoBehaviour
 
 
         // Lock the cursor to the center of the screen and hide it
-
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
         weaponController = playerTransform.GetComponent<WeaponController>();
+
+        weaponSelectionUI.UIStateChanged.AddListener((isOpen) =>
+        {
+            if (isOpen)
+            {
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+                playerInput.SwitchCurrentActionMap(uiMapName);
+            }
+            else
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+                playerInput.SwitchCurrentActionMap(actionMapName);
+            }
+        });
     }
 
     private void OnDestroy()
@@ -61,9 +79,9 @@ public class PlayerController : MonoBehaviour
         playerAnimator.SetFloat("Forward", moveDirection.z);
         playerAnimator.SetFloat("Strafe", moveDirection.x);
         playerAnimator.SetBool("Grounded", IsGrounded());
-        
+
     }
-    
+
     private bool IsGrounded()
     {
         // Check if the player is grounded by casting a ray downwards from the player's position
@@ -146,8 +164,49 @@ public class PlayerController : MonoBehaviour
                     }
                     break;
 
+                case "OpenWeaponsMenu":
+                    if (context.phase == InputActionPhase.Performed)
+                    {
+                        if (weaponSelectionUI.IsOpen)
+                        {
+                            weaponSelectionUI.Close();
+                            Cursor.lockState = CursorLockMode.Locked;
+                            Cursor.visible = false;
+                        }
+                        else
+                        {
+                            weaponSelectionUI.Open();
+                            Cursor.lockState = CursorLockMode.None;
+                            Cursor.visible = true;
+                        }
+
+                    }
+                    break;
+
+                    case "Attack":
+                        if (context.phase == InputActionPhase.Performed)
+                    {
+                       Debug.Log("Attack action performed");
+                        var attackCommand = attacker.CreateAttackCommand();
+                        CommandController.Instance.ExecuteCommand(attackCommand);
+                    }
+                    break;
 
                 default:
+                    break;
+            }
+        }
+        else if (context.action.actionMap.name == uiMapName)
+        {
+            switch (context.action.name)
+            {
+                case "Cancel":
+                    if (context.phase == InputActionPhase.Performed)
+                    {
+                        weaponSelectionUI.Close();
+                        Cursor.lockState = CursorLockMode.Locked;
+                        Cursor.visible = false;
+                    }
                     break;
             }
         }

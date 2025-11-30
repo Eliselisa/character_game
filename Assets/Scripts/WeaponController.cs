@@ -9,16 +9,22 @@ public class WeaponController : MonoBehaviour
 
     private GameObject currentWeapon;
     private int currentWeaponIndex = 0;
+    private Animator weaponHolderAnimator;
+
 
     public WeaponData SelectedWeapon => weaponsData[currentWeaponIndex];
+    public WeaponData[] WeaponsData => weaponsData;
+    public GameObject CurrentWeapon => currentWeapon;
 
     private void Start()
     {
+        weaponHolderAnimator = weaponHolder.GetComponentInParent<Animator>();
         SelectWeapon(0);
     }
 
     public void SelectWeapon(int weaponIndex)
     {
+        currentWeaponIndex = weaponIndex;
         var data = weaponsData[weaponIndex];
         var weaponPrefab = data.WeaponPrefab;
 
@@ -29,6 +35,7 @@ public class WeaponController : MonoBehaviour
 
         currentWeapon = Instantiate(weaponPrefab, weaponHolder);
         onWeaponChanged.Invoke(SelectedWeapon);
+        weaponHolderAnimator.SetTrigger(data.AnimationTrigger);
     }
     public void NextWeapon()
     {

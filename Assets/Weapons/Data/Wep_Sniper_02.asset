@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   icon: {fileID: 21300000, guid: 22b035964188a384d9ff3c3b932e0a40, type: 3}
   weaponPrefab: {fileID: 1512905131166018, guid: 21619a46049a827479fabffd9cd8e63b, type: 3}
+  animationTrigger: EquippedRifle

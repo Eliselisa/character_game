@@ -14,3 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   icon: {fileID: 21300000, guid: cc56b306ae359ff4ebcae80d126c79db, type: 3}
   weaponPrefab: {fileID: 1152084461411052, guid: 0480c0c2c3bd97149a9587300752351c, type: 3}
+  animationTrigger: EquippedMeleeTwoHands
+  damage: 30
+  duration: 1.6
